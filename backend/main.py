@@ -4,6 +4,8 @@ from app.routes.produits import router as produits_router
 from app.routes.ventes import router as ventes_router
 from app.routes.websocket import router as websocket_router
 from app.routes.connexion import router as connexion_router
+from app.routes.statistiques import router as statistiques_router
+from app.routes.transactions import router as transactions_router
 from app.db import init_database
 from app.services.network import get_server_info
 from app.services.mdns import mdns_announcer
@@ -32,6 +34,8 @@ app.include_router(produits_router)
 app.include_router(ventes_router)
 app.include_router(websocket_router)
 app.include_router(connexion_router)
+app.include_router(statistiques_router)
+app.include_router(transactions_router)
 
 @app.get("/health")
 async def health_check():
