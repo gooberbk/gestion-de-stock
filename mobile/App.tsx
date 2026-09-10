@@ -12,7 +12,7 @@ export default function App() {
   return (
     <ConnexionProvider>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="connexion">
           <Stack.Screen name="connexion" component={ConnexionScreen} />
           <Stack.Screen name="dashboard" component={DashboardScreen} />
           <Stack.Screen name="historique" component={HistoriqueScreen} />
