@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from pathlib import Path
 from app.routes.produits import router as produits_router
@@ -31,6 +32,15 @@ async def lifespan(app: FastAPI):
     mdns_announcer.stop()
 
 app = FastAPI(title="Gestion de Stock API", version="0.1.0", lifespan=lifespan)
+
+# Configuration CORS pour permettre les requêtes depuis l'application mobile
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permet toutes les origines (pour le développement local)
+    allow_credentials=True,
+    allow_methods=["*"],  # Permet toutes les méthodes HTTP
+    allow_headers=["*"],  # Permet tous les headers
+)
 
 # Servir les fichiers statiques
 static_dir = Path(__file__).parent / "static"

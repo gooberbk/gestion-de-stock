@@ -88,12 +88,12 @@ export default function HistoriqueScreen() {
               </View>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Prix vente:</Text>
-                <Text style={styles.detailValue}>{transaction.prix_vente_effectif.toFixed(2)} €</Text>
+                <Text style={styles.detailValue}>{transaction.prix_vente_effectif.toFixed(2)} DA</Text>
               </View>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Marge:</Text>
                 <Text style={[styles.detailValue, styles.margeValue]}>
-                  {transaction.marge_totale.toFixed(2)} €
+                  {transaction.marge_totale.toFixed(2)} DA
                 </Text>
               </View>
             </View>

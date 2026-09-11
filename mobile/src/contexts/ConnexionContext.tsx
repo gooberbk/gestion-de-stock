@@ -26,6 +26,7 @@ export function ConnexionProvider({ children }: { children: ReactNode }) {
 
   const setServerInfo = (info: ServerInfo | null) => {
     setServerInfoState(info);
+    setIsConnected(!!info);
     if (info) {
       AsyncStorage.setItem(CONNEXION_STORAGE_KEY, JSON.stringify(info));
     } else {

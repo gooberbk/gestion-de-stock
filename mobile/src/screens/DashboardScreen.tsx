@@ -186,11 +186,11 @@ export default function DashboardScreen({ navigation }: any) {
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Chiffre d'affaires</Text>
-          <Text style={styles.statValue}>{stats.total_ca.toFixed(2)} €</Text>
+          <Text style={styles.statValue}>{stats.total_ca.toFixed(2)} DA</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Marge totale</Text>
-          <Text style={styles.statValue}>{stats.total_marge.toFixed(2)} €</Text>
+          <Text style={styles.statValue}>{stats.total_marge.toFixed(2)} DA</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Nombre de ventes</Text>
@@ -244,7 +244,7 @@ export default function DashboardScreen({ navigation }: any) {
             ]}>
               <Text style={styles.saleProduct}>{sale.produit_nom}</Text>
               <Text style={styles.saleDetails}>
-                {sale.quantite_vendue} x {sale.marge.toFixed(2)} € marge
+                {sale.quantite_vendue} x {sale.marge.toFixed(2)} DA marge
               </Text>
               {sale.stock_negatif && (
                 <View style={styles.alertBadge}>
