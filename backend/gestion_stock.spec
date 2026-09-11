@@ -5,6 +5,7 @@ from pathlib import Path
 
 # Chemin du projet
 project_root = Path(SPECPATH).parent
+static_dir = project_root / "backend" / "static"
 
 block_cipher = None
 
@@ -13,8 +14,8 @@ a = Analysis(
     pathex=[str(project_root)],
     binaries=[],
     datas=[
-        # Inclure les fichiers de configuration si nécessaire
-        # (str(project_root / '.env'), '.'),
+        # Inclure les fichiers statiques
+        (str(static_dir), "static"),
     ],
     hiddenimports=[
         # FastAPI et dépendances
@@ -78,6 +79,9 @@ a = Analysis(
         'pyyaml',
         'uvloop',
         'watchfiles',
+        
+        # Pour les fichiers statiques
+        'aiofiles',
     ],
     hookspath=[],
     hooksconfig={},

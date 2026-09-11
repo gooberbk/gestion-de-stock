@@ -1,5 +1,8 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
+from pathlib import Path
 from app.routes.produits import router as produits_router
 from app.routes.ventes import router as ventes_router
 from app.routes.websocket import router as websocket_router
@@ -29,6 +32,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Gestion de Stock API", version="0.1.0", lifespan=lifespan)
 
+# Servir les fichiers statiques
+static_dir = Path(__file__).parent / "static"
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 # Inclure les routes
 app.include_router(produits_router)
 app.include_router(ventes_router)
@@ -40,6 +47,12 @@ app.include_router(transactions_router)
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+@app.get("/")
+async def pos_interface():
+    """Servir l'interface de point de vente"""
+    pos_file = Path(__file__).parent / "static" / "pos.html"
+    return FileResponse(pos_file)
 
 if __name__ == "__main__":
     import uvicorn
