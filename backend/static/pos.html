@@ -304,6 +304,46 @@
             font-weight: bold;
         }
 
+        .scan-item-details {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .scan-item-quantity {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .scan-item-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .cancel-transaction-btn {
+            background: #FF9500;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .cancel-transaction-btn:hover {
+            background: #cc7700;
+        }
+
+        .scan-item.annulee {
+            background: #FFF3F3;
+            opacity: 0.7;
+        }
+
+        .scan-item.annulee .scan-item-name {
+            text-decoration: line-through;
+            color: #999;
+        }
+
         .ticket-summary {
             background: #f8f9fa;
             padding: 20px;
@@ -448,6 +488,13 @@
                 </div>
             </div>
         </div>
+
+        <div class="recent-scans">
+            <h3>5 derniers scans du jour</h3>
+            <div id="recentScansList">
+                <p style="color: #999; font-size: 14px;">Aucun scan récent</p>
+            </div>
+        </div>
     </div>
 
     <div class="status-bar">
@@ -471,9 +518,11 @@
         const errorList = document.getElementById('errorList');
         const statusIndicator = document.getElementById('statusIndicator');
         const statusText = document.getElementById('statusText');
+        const recentScansList = document.getElementById('recentScansList');
         
         let ticket = [];
         let productsCache = {};
+        let recentTransactions = [];
 
         // Maintenir le focus sur l'input
         function maintainFocus() {
@@ -514,6 +563,79 @@
 
         setInterval(checkConnection, 5000);
         checkConnection();
+
+        // Charger les 5 dernières transactions
+        async function loadRecentTransactions() {
+            try {
+                const response = await fetch(`${API_BASE}/transactions?limite=5`);
+                const data = await response.json();
+                if (response.ok && data.transactions) {
+                    recentTransactions = data.transactions;
+                    renderRecentScans();
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des transactions:', error);
+            }
+        }
+
+        function renderRecentScans() {
+            if (recentTransactions.length === 0) {
+                recentScansList.innerHTML = '<p style="color: #999; font-size: 14px;">Aucun scan récent</p>';
+                return;
+            }
+
+            recentScansList.innerHTML = recentTransactions.map((transaction, index) => {
+                const annuleeClass = transaction.annulee ? 'annulee' : '';
+                const time = new Date(transaction.date_transaction).toLocaleTimeString('fr-FR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                return `
+                    <div class="scan-item ${annuleeClass}">
+                        <div class="scan-item-name">${transaction.produit_nom}</div>
+                        <div class="scan-item-details">
+                            <div class="scan-item-quantity">Qté: ${transaction.quantite_vendue} | Prix: ${transaction.prix_vente_effectif.toFixed(2)} DA</div>
+                            <div class="scan-item-time">${time} ${transaction.annulee ? '(Annulée)' : ''}</div>
+                        </div>
+                        ${!transaction.annulee ? `
+                            <button class="cancel-transaction-btn" onclick="annulerTransaction(${transaction.transaction_id})">
+                                Annuler
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.annulerTransaction = async function(transactionId) {
+            if (!confirm(`Voulez-vous vraiment annuler la transaction #${transactionId} ?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/transactions/${transactionId}/annuler`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Transaction annulée avec succès !');
+                    // Recharger les transactions récentes
+                    await loadRecentTransactions();
+                } else {
+                    const data = await response.json();
+                    alert(`Erreur: ${data.detail || 'Erreur inconnue'}`);
+                }
+            } catch (error) {
+                alert('Erreur de connexion au serveur');
+            }
+        };
+
+        // Charger les transactions au démarrage
+        loadRecentTransactions();
 
         // Gestion du scan
         scanInput.addEventListener('keydown', async (e) => {
@@ -716,6 +838,8 @@
                 ticket = [];
                 renderTicket();
                 alert('Vente validée avec succès !');
+                // Recharger les transactions récentes
+                await loadRecentTransactions();
                 maintainFocus();
             }
         });

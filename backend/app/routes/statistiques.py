@@ -23,7 +23,7 @@ async def get_statistiques_jour():
     # Obtenir les statistiques globales du jour
     stats_globales = calculer_marge_du_jour()
     
-    # Obtenir les 5 dernières transactions du jour avec les détails des produits
+    # Obtenir les 5 dernières transactions du jour avec les détails des produits (excluant les annulées)
     cursor.execute("""
         SELECT 
             t.id,
@@ -37,7 +37,7 @@ async def get_statistiques_jour():
             p.quantite_stock as stock_actuel
         FROM transactions t
         JOIN produits p ON t.produit_id = p.id
-        WHERE date(t.date_transaction) = date('now', 'localtime')
+        WHERE date(t.date_transaction) = date('now', 'localtime') AND t.annulee = 0
         ORDER BY t.date_transaction DESC
         LIMIT 5
     """)

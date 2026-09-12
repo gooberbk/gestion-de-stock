@@ -15,14 +15,14 @@ def calculer_marge_du_jour() -> dict:
     # Obtenir la date du jour au format SQLite
     aujourd_hui = date.today().isoformat()
     
-    # Calculer le total des marges du jour
+    # Calculer le total des marges du jour (en excluant les transactions annulées)
     cursor.execute("""
         SELECT 
             COALESCE(SUM(marge_totale), 0) as total_marge,
             COALESCE(SUM(prix_vente_snapshot * quantite_vendue), 0) as total_ca,
             COUNT(*) as nombre_ventes
         FROM transactions
-        WHERE date(date_transaction) = ?
+        WHERE date(date_transaction) = ? AND annulee = 0
     """, (aujourd_hui,))
     
     result = cursor.fetchone()

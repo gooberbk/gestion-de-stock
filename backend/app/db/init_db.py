@@ -38,6 +38,7 @@ def init_database():
             prix_achat_estime BOOLEAN NOT NULL DEFAULT 0,
             date_transaction TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
             synced BOOLEAN NOT NULL DEFAULT 0,
+            annulee INTEGER NOT NULL DEFAULT 0,
             FOREIGN KEY (produit_id) REFERENCES produits(id)
         )
     """)
@@ -86,6 +87,15 @@ def init_database():
         CREATE INDEX IF NOT EXISTS idx_transactions_date 
         ON transactions(date_transaction)
     """)
+    
+    # Migration : Ajouter la colonne annulee si elle n'existe pas (pour les bases existantes)
+    try:
+        cursor.execute("ALTER TABLE transactions ADD COLUMN annulee INTEGER NOT NULL DEFAULT 0")
+        print("Migration : Colonne annulee ajoutée à la table transactions")
+    except sqlite3.OperationalError as e:
+        # La colonne existe déjà, pas d'erreur
+        if "duplicate column name" not in str(e).lower():
+            print(f"Migration skipped: {e}")
     
     conn.commit()
     conn.close()
