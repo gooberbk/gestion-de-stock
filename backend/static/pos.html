@@ -103,21 +103,89 @@
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
-        .result-empty {
+        .ticket-empty {
             text-align: center;
             color: #999;
             font-size: 18px;
             padding: 40px;
         }
 
-        .result-success {
-            display: none;
+        .ticket-section {
+            flex: 1;
+            overflow-y: auto;
         }
 
-        .result-success.active {
-            display: block;
+        .ticket-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ticket-table th,
+        .ticket-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .ticket-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #666;
+            font-size: 13px;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+        }
+
+        .ticket-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .ticket-table .quantity-input,
+        .ticket-table .price-input {
+            width: 80px;
+            padding: 6px;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .ticket-table .quantity-input:focus,
+        .ticket-table .price-input:focus {
+            outline: none;
+            border-color: #007AFF;
+        }
+
+        .ticket-table .line-total {
+            font-weight: bold;
+            color: #007AFF;
+        }
+
+        .ticket-table .remove-btn {
+            background: #FF3B30;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .ticket-table .remove-btn:hover {
+            background: #c92a2a;
+        }
+
+        .ticket-table .error-row {
+            background: #FFF3F3;
+        }
+
+        .ticket-table .error-message {
+            color: #FF3B30;
+            font-size: 12px;
         }
 
         .product-info {
@@ -236,9 +304,81 @@
             font-weight: bold;
         }
 
-        .scan-item-time {
-            font-size: 12px;
-            color: #999;
+        .ticket-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .ticket-total {
+            font-size: 32px;
+            font-weight: bold;
+            color: #007AFF;
+            text-align: right;
+        }
+
+        .ticket-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-validate {
+            background: #34C759;
+            color: white;
+        }
+
+        .btn-validate:hover {
+            background: #2da84a;
+        }
+
+        .btn-validate:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel {
+            background: #FF3B30;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #c92a2a;
+        }
+
+        .validation-errors {
+            background: #FFF3F3;
+            border: 2px solid #FF3B30;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .validation-errors.active {
+            display: block;
+        }
+
+        .validation-errors h4 {
+            color: #FF3B30;
+            margin-bottom: 10px;
+        }
+
+        .validation-errors ul {
+            margin-left: 20px;
+            color: #333;
         }
 
         @keyframes pulse {
@@ -274,43 +414,37 @@
         </div>
 
         <div class="result-section">
-            <div id="resultEmpty" class="result-empty">
-                <p>En attente de scan...</p>
-                <p style="font-size: 14px; margin-top: 10px;">Utilisez la douchette USB ou tapez le code et appuyez sur Entrée</p>
+            <div id="ticketEmpty" class="ticket-empty">
+                <p>Ticket vide</p>
+                <p style="font-size: 14px; margin-top: 10px;">Scannez des produits pour commencer</p>
             </div>
 
-            <div id="resultSuccess" class="result-success">
-                <div class="product-info">
-                    <div class="info-item">
-                        <div class="info-label">Produit</div>
-                        <div class="info-value" id="productName">-</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Code-barres</div>
-                        <div class="info-value" id="productCode">-</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Prix vente</div>
-                        <div class="info-value large" id="productPrice">-</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Stock après</div>
-                        <div class="info-value" id="productStock">-</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Marge</div>
-                        <div class="info-value marge" id="productMarge">-</div>
-                    </div>
-                </div>
+            <div id="ticketContent" class="ticket-section" style="display: none;">
+                <table class="ticket-table">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Code-barres</th>
+                            <th>Quantité</th>
+                            <th>Prix unitaire</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketTableBody">
+                    </tbody>
+                </table>
 
-                <div id="alertBox" class="alert-box">
-                    <div class="alert-title">⚠️ Alerte Stock</div>
-                    <div class="alert-message" id="alertMessage">Stock négatif !</div>
-                </div>
-
-                <div class="recent-scans">
-                    <h3>Scans récents</h3>
-                    <div id="recentScans"></div>
+                <div class="ticket-summary">
+                    <div class="ticket-total" id="ticketTotal">0.00 DA</div>
+                    <div class="ticket-actions">
+                        <button class="btn btn-cancel" id="cancelBtn">Annuler le ticket</button>
+                        <button class="btn btn-validate" id="validateBtn" disabled>Valider la vente</button>
+                    </div>
+                    <div id="validationErrors" class="validation-errors">
+                        <h4>⚠️ Erreurs lors de la validation</h4>
+                        <ul id="errorList"></ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -327,13 +461,19 @@
     <script>
         const API_BASE = window.location.origin;
         const scanInput = document.getElementById('scanInput');
-        const resultEmpty = document.getElementById('resultEmpty');
-        const resultSuccess = document.getElementById('resultSuccess');
+        const ticketEmpty = document.getElementById('ticketEmpty');
+        const ticketContent = document.getElementById('ticketContent');
+        const ticketTableBody = document.getElementById('ticketTableBody');
+        const ticketTotal = document.getElementById('ticketTotal');
+        const validateBtn = document.getElementById('validateBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const validationErrors = document.getElementById('validationErrors');
+        const errorList = document.getElementById('errorList');
         const statusIndicator = document.getElementById('statusIndicator');
         const statusText = document.getElementById('statusText');
-        const recentScans = document.getElementById('recentScans');
         
-        let recentScansList = [];
+        let ticket = [];
+        let productsCache = {};
 
         // Maintenir le focus sur l'input
         function maintainFocus() {
@@ -342,7 +482,11 @@
 
         // Focus automatique au chargement
         window.addEventListener('load', maintainFocus);
-        document.addEventListener('click', maintainFocus);
+        document.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+                maintainFocus();
+            }
+        });
 
         // Horloge
         function updateClock() {
@@ -376,104 +520,204 @@
             if (e.key === 'Enter') {
                 const code = scanInput.value.trim();
                 if (code) {
-                    await processScan(code);
+                    await addToTicket(code);
                     scanInput.value = '';
                     maintainFocus();
                 }
             }
         });
 
-        async function processScan(code) {
-            resultEmpty.style.display = 'none';
-            resultSuccess.classList.add('active');
-            
-            // Afficher l'état de traitement
-            document.getElementById('productName').textContent = 'Traitement...';
-            document.getElementById('productName').parentElement.classList.add('processing');
-
+        async function addToTicket(code) {
             try {
-                const response = await fetch(`${API_BASE}/ventes`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        code_qr: code,
-                        quantite_vendue: 1
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    displaySuccess(data);
-                    addToRecentScans(data);
-                } else {
-                    displayError(data.detail || 'Erreur lors de la vente');
+                // Récupérer ou mettre en cache les produits
+                if (!productsCache[code]) {
+                    const response = await fetch(`${API_BASE}/produits`);
+                    const data = await response.json();
+                    if (response.ok && data.produits) {
+                        const product = data.produits.find(p => p.code_qr === code);
+                        if (product) {
+                            productsCache[code] = product;
+                        }
+                    }
                 }
+
+                const product = productsCache[code];
+                if (!product) {
+                    alert(`Produit avec code-barres "${code}" non trouvé`);
+                    return;
+                }
+
+                // Vérifier si le produit est déjà dans le ticket
+                const existingLine = ticket.find(line => line.code_qr === code);
+                if (existingLine) {
+                    existingLine.quantity += 1;
+                } else {
+                    ticket.push({
+                        id: Date.now(),
+                        code_qr: product.code_qr,
+                        nom: product.nom,
+                        prix_catalogue: product.prix_vente,
+                        prix_override: null,
+                        quantity: 1
+                    });
+                }
+
+                renderTicket();
             } catch (error) {
-                displayError('Erreur de connexion au serveur');
-            } finally {
-                document.getElementById('productName').parentElement.classList.remove('processing');
+                alert('Erreur de connexion au serveur');
             }
         }
 
-        function displaySuccess(data) {
-            document.getElementById('productName').textContent = data.produit_nom;
-            document.getElementById('productCode').textContent = data.produit_code_qr;
-            document.getElementById('productPrice').textContent = data.prix_vente_effectif.toFixed(2) + ' DA';
-            document.getElementById('productStock').textContent = data.stock_apres_vente;
-            document.getElementById('productMarge').textContent = data.marge_totale.toFixed(2) + ' DA';
+        function renderTicket() {
+            if (ticket.length === 0) {
+                ticketEmpty.style.display = 'block';
+                ticketContent.style.display = 'none';
+                validateBtn.disabled = true;
+                return;
+            }
 
-            // Gérer l'alerte de stock négatif
-            const alertBox = document.getElementById('alertBox');
-            if (data.stock_negatif) {
-                alertBox.classList.add('active');
-                document.getElementById('alertMessage').textContent = 
-                    `Stock négatif ! (${data.stock_apres_vente} unités)`;
+            ticketEmpty.style.display = 'none';
+            ticketContent.style.display = 'block';
+            validateBtn.disabled = false;
+            validationErrors.classList.remove('active');
+
+            ticketTableBody.innerHTML = ticket.map((line, index) => {
+                const unitPrice = line.prix_override || line.prix_catalogue;
+                const lineTotal = unitPrice * line.quantity;
+                const errorClass = line.error ? 'error-row' : '';
+                const errorMessage = line.error ? `<div class="error-message">${line.error}</div>` : '';
+
+                return `
+                    <tr class="${errorClass}">
+                        <td>
+                            <strong>${line.nom}</strong>
+                            ${errorMessage}
+                        </td>
+                        <td><code>${line.code_qr}</code></td>
+                        <td>
+                            <input 
+                                type="number" 
+                                class="quantity-input" 
+                                value="${line.quantity}" 
+                                min="1"
+                                onchange="updateQuantity(${index}, this.value)"
+                            >
+                        </td>
+                        <td>
+                            <input 
+                                type="number" 
+                                class="price-input" 
+                                value="${line.prix_override !== null ? line.prix_override : ''}" 
+                                step="0.01"
+                                min="0"
+                                placeholder="${line.prix_catalogue.toFixed(2)}"
+                                onchange="updatePrice(${index}, this.value)"
+                            >
+                        </td>
+                        <td class="line-total">${lineTotal.toFixed(2)} DA</td>
+                        <td>
+                            <button class="remove-btn" onclick="removeLine(${index})">×</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            updateTotal();
+        }
+
+        function updateTotal() {
+            const total = ticket.reduce((sum, line) => {
+                const unitPrice = line.prix_override || line.prix_catalogue;
+                return sum + (unitPrice * line.quantity);
+            }, 0);
+            ticketTotal.textContent = total.toFixed(2) + ' DA';
+        }
+
+        window.updateQuantity = function(index, value) {
+            const newQuantity = parseInt(value);
+            if (newQuantity > 0) {
+                ticket[index].quantity = newQuantity;
+                ticket[index].error = null;
+                renderTicket();
+            }
+        };
+
+        window.updatePrice = function(index, value) {
+            const newPrice = value ? parseFloat(value) : null;
+            ticket[index].prix_override = newPrice;
+            ticket[index].error = null;
+            renderTicket();
+        };
+
+        window.removeLine = function(index) {
+            ticket.splice(index, 1);
+            renderTicket();
+        };
+
+        cancelBtn.addEventListener('click', () => {
+            if (ticket.length > 0 && confirm('Voulez-vous vraiment annuler le ticket ?')) {
+                ticket = [];
+                renderTicket();
+                maintainFocus();
+            }
+        });
+
+        validateBtn.addEventListener('click', async () => {
+            if (ticket.length === 0) return;
+
+            validateBtn.disabled = true;
+            validateBtn.textContent = 'Validation en cours...';
+            validationErrors.classList.remove('active');
+            errorList.innerHTML = '';
+
+            let errors = [];
+
+            for (let i = 0; i < ticket.length; i++) {
+                const line = ticket[i];
+                line.error = null;
+
+                try {
+                    const payload = {
+                        code_qr: line.code_qr,
+                        quantite_vendue: line.quantity
+                    };
+
+                    if (line.prix_override !== null) {
+                        payload.prix_vente_override = line.prix_override;
+                    }
+
+                    const response = await fetch(`${API_BASE}/ventes`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        line.error = data.detail || 'Erreur inconnue';
+                        errors.push(`${line.nom}: ${line.error}`);
+                    }
+                } catch (error) {
+                    line.error = 'Erreur de connexion';
+                    errors.push(`${line.nom}: Erreur de connexion`);
+                }
+            }
+
+            if (errors.length > 0) {
+                errorList.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+                validationErrors.classList.add('active');
+                renderTicket();
+                validateBtn.disabled = false;
+                validateBtn.textContent = 'Valider la vente';
             } else {
-                alertBox.classList.remove('active');
+                // Succès : vider le ticket
+                ticket = [];
+                renderTicket();
+                alert('Vente validée avec succès !');
+                maintainFocus();
             }
-        }
-
-        function displayError(message) {
-            document.getElementById('productName').textContent = 'Erreur';
-            document.getElementById('productName').parentElement.classList.add('error');
-            document.getElementById('productCode').textContent = message;
-            document.getElementById('productPrice').textContent = '-';
-            document.getElementById('productStock').textContent = '-';
-            document.getElementById('productMarge').textContent = '-';
-            document.getElementById('alertBox').classList.remove('active');
-        }
-
-        function addToRecentScans(data) {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('fr-FR');
-            
-            recentScansList.unshift({
-                name: data.produit_nom,
-                time: timeStr
-            });
-
-            if (recentScansList.length > 5) {
-                recentScansList.pop();
-            }
-
-            renderRecentScans();
-        }
-
-        function renderRecentScans() {
-            recentScans.innerHTML = recentScansList.map(scan => `
-                <div class="scan-item">
-                    <span class="scan-item-name">${scan.name}</span>
-                    <span class="scan-item-time">${scan.time}</span>
-                </div>
-            `).join('');
-        }
-
-        // Empêcher la soumission du formulaire
-        document.addEventListener('submit', (e) => {
-            e.preventDefault();
         });
     </script>
 </body>
