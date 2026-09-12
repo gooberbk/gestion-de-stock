@@ -33,7 +33,8 @@ async def get_statistiques_jour():
             t.marge_totale,
             t.date_transaction,
             p.nom as produit_nom,
-            p.code_qr as produit_code_qr
+            p.code_qr as produit_code_qr,
+            p.quantite_stock as stock_actuel
         FROM transactions t
         JOIN produits p ON t.produit_id = p.id
         WHERE date(t.date_transaction) = date('now', 'localtime')
@@ -51,7 +52,9 @@ async def get_statistiques_jour():
             "quantite_vendue": row['quantite_vendue'],
             "prix_vente": row['prix_vente_snapshot'],
             "marge": row['marge_totale'],
-            "date_transaction": row['date_transaction']
+            "date_transaction": row['date_transaction'],
+            "nouveau_stock": row['stock_actuel'],
+            "stock_negatif": row['stock_actuel'] < 0,
         })
     
     conn.close()

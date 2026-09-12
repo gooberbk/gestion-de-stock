@@ -37,7 +37,7 @@ app = FastAPI(title="Gestion de Stock API", version="0.1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Permet toutes les origines (pour le développement local)
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],  # Permet toutes les méthodes HTTP
     allow_headers=["*"],  # Permet tous les headers
 )
@@ -63,6 +63,12 @@ async def pos_interface():
     """Servir l'interface de point de vente"""
     pos_file = Path(__file__).parent / "static" / "pos.html"
     return FileResponse(pos_file)
+
+@app.get("/catalogue")
+async def catalogue_interface():
+    """Servir l'interface de gestion du catalogue"""
+    catalogue_file = Path(__file__).parent / "static" / "catalogue.html"
+    return FileResponse(catalogue_file)
 
 if __name__ == "__main__":
     import uvicorn

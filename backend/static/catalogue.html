@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue Produits - Gestion de Stock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #007AFF;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            gap: 20px;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-section h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #007AFF;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007AFF;
+        }
+
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-top: 10px;
+        }
+
+        .checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            text-transform: none;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: #007AFF;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .btn-danger {
+            background: #FF3B30;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c92a2a;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .products-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .products-section h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #007AFF;
+            padding-bottom: 10px;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .products-table th,
+        .products-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .products-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #666;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .products-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .products-table .price {
+            font-weight: bold;
+            color: #007AFF;
+        }
+
+        .products-table .stock-low {
+            color: #FF3B30;
+            font-weight: bold;
+        }
+
+        .products-table .estimated {
+            color: #FF9500;
+            font-style: italic;
+            font-size: 12px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .message {
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.active {
+            display: block;
+        }
+
+        .status-bar {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #34C759;
+            margin-right: 8px;
+        }
+
+        .status-indicator.offline {
+            background: #FF3B30;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .processing {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📦 Catalogue Produits</h1>
+        <p>Gérez votre inventaire de produits</p>
+        <a href="/" class="nav-link">→ Interface de Caisse</a>
+    </div>
+
+    <div class="main-content">
+        <div class="form-section">
+            <h2 id="formTitle">Ajouter un produit</h2>
+            
+            <div id="message" class="message"></div>
+
+            <form id="productForm">
+                <input type="hidden" id="productId" value="">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="codeQr">Code QR / Code-barres *</label>
+                        <input 
+                            type="text" 
+                            id="codeQr" 
+                            name="code_qr" 
+                            required
+                            placeholder="Scanner ou saisir..."
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nom">Nom du produit *</label>
+                        <input 
+                            type="text" 
+                            id="nom" 
+                            name="nom" 
+                            required
+                            placeholder="Ex: Coca-Cola 33cl"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categorie">Catégorie</label>
+                        <input 
+                            type="text" 
+                            id="categorie" 
+                            name="categorie"
+                            placeholder="Ex: Boissons"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prixAchat">Prix d'achat (DA) *</label>
+                        <input 
+                            type="number" 
+                            id="prixAchat" 
+                            name="prix_achat" 
+                            required
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prixVente">Prix de vente (DA) *</label>
+                        <input 
+                            type="number" 
+                            id="prixVente" 
+                            name="prix_vente" 
+                            required
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantiteStock">Stock initial *</label>
+                        <input 
+                            type="number" 
+                            id="quantiteStock" 
+                            name="quantite_stock" 
+                            required
+                            min="0"
+                            placeholder="0"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="seuilAlerte">Seuil d'alerte</label>
+                        <input 
+                            type="number" 
+                            id="seuilAlerte" 
+                            name="seuil_alerte"
+                            min="0"
+                            placeholder="5"
+                        >
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input 
+                            type="checkbox" 
+                            id="prixAchatConfirme" 
+                            name="prix_achat_confirme"
+                        >
+                        <label for="prixAchatConfirme">Prix d'achat non confirmé (estimé)</label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Ajouter le produit</button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn" style="display: none;">Annuler la modification</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="products-section">
+            <h2>Liste des produits</h2>
+            <div id="productsLoading" class="loading">Chargement...</div>
+            <div id="productsEmpty" class="empty-state" style="display: none;">
+                <p>Aucun produit dans le catalogue</p>
+            </div>
+            <div id="productsContent" style="display: none;">
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th>Code QR</th>
+                            <th>Nom</th>
+                            <th>Catégorie</th>
+                            <th>Prix Achat</th>
+                            <th>Prix Vente</th>
+                            <th>Stock</th>
+                            <th>Seuil</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div>
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span id="statusText">Connecté au serveur</span>
+        </div>
+        <div id="clock"></div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const productForm = document.getElementById('productForm');
+        const codeQrInput = document.getElementById('codeQr');
+        const formTitle = document.getElementById('formTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const productIdInput = document.getElementById('productId');
+        const messageBox = document.getElementById('message');
+        const productsLoading = document.getElementById('productsLoading');
+        const productsEmpty = document.getElementById('productsEmpty');
+        const productsContent = document.getElementById('productsContent');
+        const productsTableBody = document.getElementById('productsTableBody');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+
+        let isEditing = false;
+
+        // Maintenir le focus sur l'input code QR
+        function maintainFocus() {
+            if (!isEditing) {
+                codeQrInput.focus();
+            }
+        }
+
+        // Focus automatique au chargement
+        window.addEventListener('load', () => {
+            maintainFocus();
+            loadProducts();
+        });
+        document.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') {
+                maintainFocus();
+            }
+        });
+
+        // Horloge
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('fr-FR');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Vérifier la connexion au serveur
+        async function checkConnection() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    statusIndicator.classList.remove('offline');
+                    statusText.textContent = 'Connecté au serveur';
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                statusIndicator.classList.add('offline');
+                statusText.textContent = 'Déconnecté du serveur';
+            }
+        }
+
+        setInterval(checkConnection, 5000);
+        checkConnection();
+
+        // Gestion du scan code QR
+        codeQrInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                // Le code est scanné, on passe au champ suivant
+                document.getElementById('nom').focus();
+            }
+        });
+
+        // Charger les produits
+        async function loadProducts() {
+            productsLoading.style.display = 'block';
+            productsEmpty.style.display = 'none';
+            productsContent.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/produits`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayProducts(data.produits);
+                } else {
+                    showMessage('Erreur lors du chargement des produits', 'error');
+                }
+            } catch (error) {
+                showMessage('Erreur de connexion au serveur', 'error');
+            } finally {
+                productsLoading.style.display = 'none';
+            }
+        }
+
+        function displayProducts(produits) {
+            if (produits.length === 0) {
+                productsEmpty.style.display = 'block';
+                productsContent.style.display = 'none';
+                return;
+            }
+
+            productsEmpty.style.display = 'none';
+            productsContent.style.display = 'block';
+
+            productsTableBody.innerHTML = produits.map(produit => {
+                const stockClass = produit.quantite_stock <= produit.seuil_alerte ? 'stock-low' : '';
+                const estimatedLabel = !produit.prix_achat_confirme ? '<span class="estimated">(estimé)</span>' : '';
+                
+                return `
+                    <tr>
+                        <td><code>${produit.code_qr}</code></td>
+                        <td>${produit.nom}</td>
+                        <td>${produit.categorie || '-'}</td>
+                        <td>${produit.prix_achat.toFixed(2)} DA ${estimatedLabel}</td>
+                        <td class="price">${produit.prix_vente.toFixed(2)} DA</td>
+                        <td class="${stockClass}">${produit.quantite_stock}</td>
+                        <td>${produit.seuil_alerte}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary btn-small" onclick="editProduct(${produit.id})">Modifier</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteProduct(${produit.id}, '${produit.nom.replace(/'/g, "\\'")}')">Désactiver</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Soumission du formulaire
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(productForm);
+            const productData = {
+                code_qr: formData.get('code_qr'),
+                nom: formData.get('nom'),
+                categorie: formData.get('categorie') || null,
+                prix_achat: parseFloat(formData.get('prix_achat')),
+                prix_vente: parseFloat(formData.get('prix_vente')),
+                quantite_stock: parseInt(formData.get('quantite_stock')),
+                seuil_alerte: parseInt(formData.get('seuil_alerte')) || 5,
+                prix_achat_confirme: !formData.get('prix_achat_confirme')
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Traitement...';
+
+            try {
+                let response;
+                if (isEditing) {
+                    response = await fetch(`${API_BASE}/produits/${productIdInput.value}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(productData)
+                    });
+                } else {
+                    response = await fetch(`${API_BASE}/produits`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(productData)
+                    });
+                }
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(isEditing ? 'Produit modifié avec succès' : 'Produit ajouté avec succès', 'success');
+                    resetForm();
+                    loadProducts();
+                } else {
+                    showMessage(data.detail || 'Erreur lors de l\'opération', 'error');
+                }
+            } catch (error) {
+                showMessage('Erreur de connexion au serveur', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = isEditing ? 'Modifier le produit' : 'Ajouter le produit';
+            }
+        });
+
+        // Modifier un produit
+        window.editProduct = async (productId) => {
+            try {
+                const response = await fetch(`${API_BASE}/produits/${productId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    isEditing = true;
+                    productIdInput.value = data.id;
+                    codeQrInput.value = data.code_qr;
+                    document.getElementById('nom').value = data.nom;
+                    document.getElementById('categorie').value = data.categorie || '';
+                    document.getElementById('prixAchat').value = data.prix_achat;
+                    document.getElementById('prixVente').value = data.prix_vente;
+                    document.getElementById('quantiteStock').value = data.quantite_stock;
+                    document.getElementById('seuilAlerte').value = data.seuil_alerte;
+                    document.getElementById('prixAchatConfirme').checked = !data.prix_achat_confirme;
+
+                    formTitle.textContent = 'Modifier le produit';
+                    submitBtn.textContent = 'Modifier le produit';
+                    cancelBtn.style.display = 'inline-block';
+
+                    // Scroll vers le formulaire
+                    productForm.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showMessage('Erreur lors du chargement du produit', 'error');
+                }
+            } catch (error) {
+                showMessage('Erreur de connexion au serveur', 'error');
+            }
+        };
+
+        // Supprimer un produit
+        window.deleteProduct = async (productId, productName) => {
+            if (!confirm(`Êtes-vous sûr de vouloir désactiver le produit "${productName}" ?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/produits/${productId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showMessage('Produit désactivé avec succès', 'success');
+                    loadProducts();
+                } else {
+                    showMessage('Erreur lors de la désactivation du produit', 'error');
+                }
+            } catch (error) {
+                showMessage('Erreur de connexion au serveur', 'error');
+            }
+        };
+
+        // Annuler la modification
+        cancelBtn.addEventListener('click', resetForm);
+
+        function resetForm() {
+            isEditing = false;
+            productIdInput.value = '';
+            productForm.reset();
+            formTitle.textContent = 'Ajouter un produit';
+            submitBtn.textContent = 'Ajouter le produit';
+            cancelBtn.style.display = 'none';
+            messageBox.classList.remove('active');
+            maintainFocus();
+        }
+
+        function showMessage(text, type) {
+            messageBox.textContent = text;
+            messageBox.className = `message ${type} active`;
+            
+            setTimeout(() => {
+                messageBox.classList.remove('active');
+            }, 5000);
+        }
+
+        // Empêcher la soumission du formulaire
+        document.addEventListener('submit', (e) => {
+            if (e.target !== productForm) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

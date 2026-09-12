@@ -81,9 +81,9 @@ export default function DashboardScreen({ navigation }: any) {
             produit_nom: v.produit_nom,
             produit_code_qr: v.produit_code_qr,
             quantite_vendue: v.quantite_vendue,
-            nouveau_stock: 0, // Pas disponible dans l'endpoint stats
+            nouveau_stock: v.nouveau_stock ?? 0,
             marge: v.marge,
-            stock_negatif: false, // Pas disponible dans l'endpoint stats
+            stock_negatif: Boolean(v.stock_negatif),
             transaction_id: v.transaction_id,
           }));
           setRecentSales(ventesFormatees);
