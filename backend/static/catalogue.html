@@ -37,9 +37,15 @@
             opacity: 0.9;
         }
 
-        .nav-link {
-            display: inline-block;
+        .nav-links {
             margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
             padding: 8px 16px;
             background: rgba(255,255,255,0.2);
             color: white;
@@ -309,7 +315,10 @@
     <div class="header">
         <h1>📦 Catalogue Produits</h1>
         <p>Gérez votre inventaire de produits</p>
-        <a href="/" class="nav-link">→ Interface de Caisse</a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Point de Vente</a>
+            <a href="/reapprovisionnement" class="nav-link">Réapprovisionnement</a>
+        </div>
     </div>
 
     <div class="main-content">

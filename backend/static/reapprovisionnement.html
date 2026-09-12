@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réapprovisionnement - Gestion de Stock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #007AFF;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .nav-links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .scan-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .scan-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 24px;
+            border: 3px solid #007AFF;
+            border-radius: 8px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .scan-input:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.2);
+        }
+
+        .scan-input::placeholder {
+            color: #999;
+        }
+
+        .result-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            flex: 1;
+        }
+
+        .result-empty {
+            text-align: center;
+            color: #999;
+            font-size: 18px;
+            padding: 40px;
+        }
+
+        .result-error {
+            text-align: center;
+            color: #FF3B30;
+            font-size: 18px;
+            padding: 40px;
+            display: none;
+        }
+
+        .result-error.active {
+            display: block;
+        }
+
+        .result-error a {
+            color: #007AFF;
+            text-decoration: underline;
+        }
+
+        .result-success {
+            display: none;
+        }
+
+        .result-success.active {
+            display: block;
+        }
+
+        .product-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007AFF;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .info-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .info-value.large {
+            font-size: 28px;
+            color: #34C759;
+        }
+
+        .form-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .form-section h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #007AFF;
+        }
+
+        .checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            text-transform: none;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: #34C759;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2da84a;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .confirmation-box {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .confirmation-box.active {
+            display: block;
+        }
+
+        .confirmation-title {
+            color: #155724;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .confirmation-message {
+            color: #155724;
+            font-size: 16px;
+        }
+
+        .status-bar {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #34C759;
+            margin-right: 8px;
+        }
+
+        .status-indicator.offline {
+            background: #FF3B30;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .processing {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📦 Réapprovisionnement</h1>
+        <p>Scannez un code-barres pour ajouter du stock</p>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Point de Vente</a>
+            <a href="/catalogue" class="nav-link">Catalogue</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="scan-section">
+            <input 
+                type="text" 
+                id="scanInput" 
+                class="scan-input" 
+                placeholder="Scanner un code-barres ici..." 
+                autofocus
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="result-section">
+            <div id="resultEmpty" class="result-empty">
+                <p>En attente de scan...</p>
+                <p style="font-size: 14px; margin-top: 10px;">Utilisez la douchette USB ou tapez le code et appuyez sur Entrée</p>
+            </div>
+
+            <div id="resultError" class="result-error">
+                <p id="errorMessage">Produit non trouvé</p>
+                <p style="margin-top: 10px;">
+                    <a href="/catalogue" target="_blank">Créer ce produit dans le catalogue →</a>
+                </p>
+            </div>
+
+            <div id="resultSuccess" class="result-success">
+                <div class="product-info">
+                    <div class="info-item">
+                        <div class="info-label">Produit</div>
+                        <div class="info-value" id="productName">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Code-barres</div>
+                        <div class="info-value" id="productCode">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Stock actuel</div>
+                        <div class="info-value" id="currentStock">-</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Informations de réapprovisionnement</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="quantity">Quantité reçue *</label>
+                            <input 
+                                type="number" 
+                                id="quantity" 
+                                min="1"
+                                placeholder="0"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPurchasePrice">Nouveau prix d'achat (DA)</label>
+                            <input 
+                                type="number" 
+                                id="newPurchasePrice" 
+                                step="0.01"
+                                min="0"
+                                placeholder="Optionnel"
+                            >
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <input 
+                                type="checkbox" 
+                                id="purchasePriceConfirmed"
+                            >
+                            <label for="purchasePriceConfirmed">Prix d'achat non confirmé (estimé)</label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-primary" id="submitBtn" disabled>Valider le réapprovisionnement</button>
+                    </div>
+                </div>
+
+                <div id="confirmationBox" class="confirmation-box">
+                    <div class="confirmation-title">✅ Réapprovisionnement effectué</div>
+                    <div class="confirmation-message" id="confirmationMessage"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div>
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span id="statusText">Connecté au serveur</span>
+        </div>
+        <div id="clock"></div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const scanInput = document.getElementById('scanInput');
+        const resultEmpty = document.getElementById('resultEmpty');
+        const resultError = document.getElementById('resultError');
+        const resultSuccess = document.getElementById('resultSuccess');
+        const errorMessage = document.getElementById('errorMessage');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const quantityInput = document.getElementById('quantity');
+        const newPurchasePriceInput = document.getElementById('newPurchasePrice');
+        const purchasePriceConfirmedInput = document.getElementById('purchasePriceConfirmed');
+        const submitBtn = document.getElementById('submitBtn');
+        const confirmationBox = document.getElementById('confirmationBox');
+        const confirmationMessage = document.getElementById('confirmationMessage');
+
+        let currentProduct = null;
+
+        // Maintenir le focus sur l'input
+        function maintainFocus() {
+            scanInput.focus();
+        }
+
+        // Focus automatique au chargement
+        window.addEventListener('load', maintainFocus);
+        document.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+                maintainFocus();
+            }
+        });
+
+        // Horloge
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('fr-FR');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Vérifier la connexion au serveur
+        async function checkConnection() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    statusIndicator.classList.remove('offline');
+                    statusText.textContent = 'Connecté au serveur';
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                statusIndicator.classList.add('offline');
+                statusText.textContent = 'Déconnecté du serveur';
+            }
+        }
+
+        setInterval(checkConnection, 5000);
+        checkConnection();
+
+        // Gestion du scan
+        scanInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                const code = scanInput.value.trim();
+                if (code) {
+                    await processScan(code);
+                    scanInput.value = '';
+                    maintainFocus();
+                }
+            }
+        });
+
+        async function processScan(code) {
+            resultEmpty.style.display = 'none';
+            resultError.classList.remove('active');
+            resultSuccess.classList.remove('active');
+            confirmationBox.classList.remove('active');
+            
+            // Afficher l'état de traitement
+            resultSuccess.classList.add('active');
+            document.getElementById('productName').textContent = 'Traitement...';
+            document.getElementById('productName').parentElement.classList.add('processing');
+
+            try {
+                const response = await fetch(`${API_BASE}/produits`);
+                const data = await response.json();
+
+                if (response.ok && data.produits) {
+                    const product = data.produits.find(p => p.code_qr === code);
+                    if (product) {
+                        currentProduct = product;
+                        displayProduct(currentProduct);
+                    } else {
+                        displayError(code);
+                    }
+                } else {
+                    displayError(code);
+                }
+            } catch (error) {
+                displayError(code);
+            } finally {
+                document.getElementById('productName').parentElement.classList.remove('processing');
+            }
+        }
+
+        function displayProduct(product) {
+            resultError.classList.remove('active');
+            resultSuccess.classList.add('active');
+            
+            document.getElementById('productName').textContent = product.nom;
+            document.getElementById('productCode').textContent = product.code_qr;
+            document.getElementById('currentStock').textContent = product.quantite_stock;
+
+            // Reset form
+            quantityInput.value = '';
+            newPurchasePriceInput.value = '';
+            purchasePriceConfirmedInput.checked = false;
+            submitBtn.disabled = true;
+
+            // Focus sur quantité
+            quantityInput.focus();
+        }
+
+        function displayError(code) {
+            resultSuccess.classList.remove('active');
+            resultError.classList.add('active');
+            errorMessage.textContent = `Produit avec code-barres "${code}" non trouvé`;
+            currentProduct = null;
+        }
+
+        // Validation du formulaire
+        quantityInput.addEventListener('input', () => {
+            submitBtn.disabled = !quantityInput.value || parseInt(quantityInput.value) <= 0;
+        });
+
+        // Soumission du réapprovisionnement
+        submitBtn.addEventListener('click', async () => {
+            if (!currentProduct || !quantityInput.value) return;
+
+            const quantity = parseInt(quantityInput.value);
+            const newPurchasePrice = newPurchasePriceInput.value ? parseFloat(newPurchasePriceInput.value) : null;
+            const purchasePriceConfirmed = !purchasePriceConfirmedInput.checked;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Traitement...';
+
+            try {
+                const payload = {
+                    code_qr: currentProduct.code_qr,
+                    quantite: quantity
+                };
+
+                if (newPurchasePrice !== null) {
+                    payload.prix_achat = newPurchasePrice;
+                    payload.prix_achat_confirme = purchasePriceConfirmed;
+                }
+
+                const response = await fetch(`${API_BASE}/ventes/reapprovisionnements`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayConfirmation(data);
+                    // Reset pour le prochain scan
+                    setTimeout(() => {
+                        resultSuccess.classList.remove('active');
+                        confirmationBox.classList.remove('active');
+                        resultEmpty.style.display = 'block';
+                        currentProduct = null;
+                        maintainFocus();
+                    }, 2000);
+                } else {
+                    alert('Erreur lors du réapprovisionnement: ' + (data.detail || 'Erreur inconnue'));
+                }
+            } catch (error) {
+                alert('Erreur de connexion au serveur');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Valider le réapprovisionnement';
+            }
+        });
+
+        function displayConfirmation(data) {
+            confirmationBox.classList.add('active');
+            let message = `Stock mis à jour: ${data.stock_apres_reappro} unités`;
+            if (data.prix_achat_mis_a_jour !== null) {
+                message += `<br>Prix d'achat mis à jour: ${data.prix_achat_mis_a_jour.toFixed(2)} DA`;
+            }
+            confirmationMessage.innerHTML = message;
+        }
+
+        // Empêcher la soumission du formulaire
+        document.addEventListener('submit', (e) => {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>

@@ -70,6 +70,12 @@ async def catalogue_interface():
     catalogue_file = Path(__file__).parent / "static" / "catalogue.html"
     return FileResponse(catalogue_file)
 
+@app.get("/reapprovisionnement")
+async def reapprovisionnement_interface():
+    """Servir l'interface de réapprovisionnement"""
+    reappro_file = Path(__file__).parent / "static" / "reapprovisionnement.html"
+    return FileResponse(reappro_file)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
