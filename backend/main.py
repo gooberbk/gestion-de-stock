@@ -10,6 +10,7 @@ from app.routes.websocket import router as websocket_router
 from app.routes.connexion import router as connexion_router
 from app.routes.statistiques import router as statistiques_router
 from app.routes.transactions import router as transactions_router
+from app.routes.backup import router as backup_router
 from app.db import init_database
 from app.services.network import get_server_info
 from app.services.mdns import mdns_announcer
@@ -34,9 +35,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Gestion de Stock API", version="0.1.0", lifespan=lifespan)
 
 # Configuration CORS pour permettre les requêtes depuis l'application mobile
+# Pour le pilote en réseau local, on restreint aux adresses IP locales
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permet toutes les origines (pour le développement local)
+    allow_origins=["*"],  # Temporairement * pour le pilote, à restreindre après
     allow_credentials=False,
     allow_methods=["*"],  # Permet toutes les méthodes HTTP
     allow_headers=["*"],  # Permet tous les headers
@@ -53,6 +55,7 @@ app.include_router(websocket_router)
 app.include_router(connexion_router)
 app.include_router(statistiques_router)
 app.include_router(transactions_router)
+app.include_router(backup_router)
 
 @app.get("/health")
 async def health_check():

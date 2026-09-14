@@ -2,12 +2,14 @@ import asyncio
 import websockets
 import json
 import requests
+from datetime import datetime
 
 async def test_complete_integration():
-    # 1. Créer un produit de test
+    # 1. Créer un produit de test avec code QR unique
     print("📦 Création d'un produit de test...")
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     produit_data = {
-        "code_qr": "TEST2024",
+        "code_qr": f"TEST{timestamp}",
         "nom": "Produit Test WebSocket",
         "categorie": "Test",
         "prix_achat": 5.0,
@@ -42,7 +44,7 @@ async def test_complete_integration():
         # 3. Effectuer une vente
         print("\n💰 Enregistrement d'une vente...")
         vente_data = {
-            "code_qr": "TEST2024",
+            "code_qr": produit_data["code_qr"],
             "quantite_vendue": 3,
             "prix_vente_override": 12.0
         }
